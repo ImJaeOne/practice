@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
 import './App.css';
 
 function App() {
@@ -12,6 +10,8 @@ function App() {
         silver: 0,
         bronze: 0,
     });
+
+    const[mode, setMode] = useState('gold');
 
     const handleChangeValue = (e) => {
         const valueId = e.target.id;
@@ -36,7 +36,7 @@ function App() {
             });
             return;
         }
-        
+
         setMedalLists((prev) => [...prev, newMedalList]);
         setNewMedalList({
             country: '',
@@ -48,7 +48,7 @@ function App() {
 
     const handleClickBtn = (e) => {
         e.preventDefault();
-        const updateIndex = medalLists.findIndex((medalList) => medalList.country === newMedalList.country)
+        const updateIndex = medalLists.findIndex((medalList) => medalList.country === newMedalList.country);
         if (updateIndex === -1) {
             alert('메달 리스트에 존재하지 않는 국가입니다. 국가를 추가해주세요.');
             setNewMedalList({
@@ -71,8 +71,22 @@ function App() {
     };
 
     const handleDeleteBtn = (country) => {
-      const updatedMedalList = medalLists.filter((medalList) => medalList.country !== country)
-      setMedalLists(updatedMedalList);
+        const updatedMedalList = medalLists.filter((medalList) => medalList.country !== country);
+        setMedalLists(updatedMedalList);
+    };
+    
+
+    const handleChangeMode = () => {
+      setMode((prev) => prev === 'gold' ? 'total' : 'gold');
+    }
+    
+    const sortByModeLists = (mode) => {
+      if(mode === 'gold'){
+        return [...medalLists].sort((a, b) => b.gold - a.gold);
+      }
+      if(mode === 'total'){
+        return[...medalLists].sort((a, b) => (b.gold + b.silver + b.bronze) - (a.gold + a.silver + a.bronze));
+      }
     }
 
     return (
@@ -81,14 +95,23 @@ function App() {
                 <h2>Olympic Medal Tricker</h2>
             </header>
             <form onSubmit={handleSubmit}>
-                <input id="country" type="text" value={newMedalList.country} onChange={handleChangeValue} />
-                <input id="gold" type="number" value={newMedalList.gold} onChange={handleChangeValue} />
-                <input id="silver" type="number" value={newMedalList.silver} onChange={handleChangeValue} />
-                <input id="bronze" type="number" value={newMedalList.bronze} onChange={handleChangeValue} />
+                <input id="country" type="text" value={newMedalList.country} onChange={handleChangeValue} required/>
+                <input id="gold" type="number" value={newMedalList.gold} onChange={handleChangeValue} required/>
+                <input id="silver" type="number" value={newMedalList.silver} onChange={handleChangeValue} required/>
+                <input id="bronze" type="number" value={newMedalList.bronze} onChange={handleChangeValue} required/>
                 <button type="submit">add</button>
                 <button onClick={handleClickBtn}>update</button>
             </form>
             <div>
+                <label>
+                    <input checked={mode === 'gold'} onChange={handleChangeMode} type="radio" />
+                    Gold
+                </label>
+
+                <label>
+                    <input checked={mode === 'total'} onChange={handleChangeMode} type="radio" />
+                    Total
+                </label>
                 {medalLists.length === 0 ? (
                     <div>등록된 국가가 없습니다.</div>
                 ) : (
@@ -103,14 +126,16 @@ function App() {
                             </tr>
                         </thead>
                         <tbody>
-                            {medalLists.map((medalList) => {
+                            {sortByModeLists(mode).map((medalList) => {
                                 return (
                                     <tr key={medalList.country}>
                                         <td>{medalList.country}</td>
                                         <td>{medalList.gold}</td>
                                         <td>{medalList.silver}</td>
                                         <td>{medalList.bronze}</td>
-                                        <td><button onClick={() => handleDeleteBtn(medalList.country)}>Delete</button></td>
+                                        <td>
+                                            <button onClick={() => handleDeleteBtn(medalList.country)}>Delete</button>
+                                        </td>
                                     </tr>
                                 );
                             })}
