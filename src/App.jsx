@@ -48,7 +48,8 @@ function App() {
 
     const handleClickBtn = (e) => {
         e.preventDefault();
-        if (!medalLists.some((medalList) => medalList.country === newMedalList.country)) {
+        const updateIndex = medalLists.findIndex((medalList) => medalList.country === newMedalList.country)
+        if (updateIndex === -1) {
             alert('메달 리스트에 존재하지 않는 국가입니다. 국가를 추가해주세요.');
             setNewMedalList({
                 country: '',
@@ -58,9 +59,8 @@ function App() {
             });
             return;
         }
-        const updatedMedalList = medalLists.map((medalList) =>
-            medalList.country === newMedalList.country ? newMedalList : medalList
-        );
+        const updatedMedalList = [...medalLists];
+        updatedMedalList[updateIndex] = newMedalList;
         setMedalLists(updatedMedalList);
         setNewMedalList({
             country: '',
